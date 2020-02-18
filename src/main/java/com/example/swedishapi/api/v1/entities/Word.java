@@ -24,7 +24,7 @@ public class Word {
     @Column(name = "notes")
     private String notes;
 
-    Word(){}
+    public Word(){}
 
     public long getId() {
         return id;
