@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -41,7 +42,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
                 .authorizeRequests()
-                .antMatchers("/api/v1/**").permitAll()
+                .antMatchers("/api/v1/auth/**").permitAll()
+                .antMatchers("/api/v1/invite_new_admin").hasRole("ADMIN")
+                .antMatchers("/api/v1/invite_new_user").hasRole("ADMIN")
+                .antMatchers("/api/v1/fill_words").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/v1/words").hasAnyRole("ADMIN", "USER")
+                .antMatchers(HttpMethod.GET, "/api/v1/questions").hasAnyRole("ADMIN", "USER")
+                .antMatchers(HttpMethod.GET, "/api/v1/questions/**").hasAnyRole("ADMIN", "USER")
+                .antMatchers(HttpMethod.GET, "/api/v1/tests").hasAnyRole("ADMIN", "USER")
+                .antMatchers(HttpMethod.GET, "/api/v1/tests/**").hasAnyRole("ADMIN", "USER")
                 .anyRequest().authenticated()
             .and()
             .apply(new JwtConfigurer(jwtTokenProvider));

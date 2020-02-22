@@ -10,14 +10,18 @@ import javax.persistence.Table;
 public class WhiteToken{
 
     @Id
-    @Column(name = "token", unique = true)
+    @Column(name = "token")
     private String token;
 
-    public WhiteToken() {
+    @Column(name = "refresh", unique = true)
+    private String refresh;
+
+    public WhiteToken(){
     }
 
-    public WhiteToken(String token) {
+    public WhiteToken(String token, String refresh) {
         this.token = token;
+        this.refresh = refresh;
     }
 
     public String getToken() {
@@ -26,5 +30,13 @@ public class WhiteToken{
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getRefresh() {
+        return refresh;
+    }
+
+    public void setRefresh(String refresh) {
+        this.refresh = refresh;
     }
 }

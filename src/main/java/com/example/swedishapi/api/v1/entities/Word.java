@@ -15,7 +15,7 @@ public class Word {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     
-    @Column(name = "word", nullable = false)
+    @Column(name = "word", nullable = false, unique = true)
     private String word;
     
     @Column(name = "translation", nullable = false)

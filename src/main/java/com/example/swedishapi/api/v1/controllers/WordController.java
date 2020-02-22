@@ -27,28 +27,47 @@ public class WordController {
     private WordRepository wordRepository;
 
     @PostMapping("/fill_words")
-    public ResponseEntity fillWords(@RequestParam("file") MultipartFile file){
+    public ResponseEntity fillWords(@RequestParam("file") MultipartFile file, 
+        @RequestParam("clear") String clear){
         try {
             XSSFWorkbook workbook = XSSFWorkbookFactory.createWorkbook(file.getInputStream());
             XSSFSheet sheet = workbook.cloneSheet(0);
 
-            wordRepository.deleteAll();
+            if(clear.equals("true")){
+                wordRepository.deleteAll();
+            }
             
             List<Word> words = new ArrayList<>();
+            List<Integer> duplicates = new ArrayList<>();
             DataFormatter dataFormatter = new DataFormatter();
             sheet.forEach(row -> {
                 if(!dataFormatter.formatCellValue(row.getCell(0)).equals("Swedish") 
                     && !dataFormatter.formatCellValue(row.getCell(0)).isEmpty()){
-                    Word word = new Word();
-                    word.setWord(dataFormatter.formatCellValue(row.getCell(0)));
-                    word.setTranslation(dataFormatter.formatCellValue(row.getCell(1)));
-                    word.setNotes(dataFormatter.formatCellValue(row.getCell(2)));
-    
-                    words.add(wordRepository.save(word));
+
+                    if(wordRepository.findByWord(dataFormatter.formatCellValue(row.getCell(0))).isPresent()){
+                        duplicates.add(row.getRowNum());
+                    }
+                    else{
+                        Word word = new Word();
+                        word.setWord(dataFormatter.formatCellValue(row.getCell(0)));
+                        word.setTranslation(dataFormatter.formatCellValue(row.getCell(1)));
+                        word.setNotes(dataFormatter.formatCellValue(row.getCell(2)));
+        
+                        words.add(wordRepository.save(word));
+                    }
                 }
             });
 
-            return new ResponseEntity<>(words, HttpStatus.CREATED);
+            String message = "";
+            for(int duplicate : duplicates){
+                if(message.isEmpty()){
+                    message = "The following rows where not saved because the words already existed: ";
+                }
+
+                message += duplicate + ", ";
+            }
+
+            return new ResponseEntity<>(message, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }        
