@@ -31,6 +31,8 @@ public class JwtTokenProvider {
 
     private long shortValidityInMilliseconds = 1800000; // 30m
 
+    private long refreshValidityInMilliseconds = 604800000; // 7 days
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -47,6 +49,8 @@ public class JwtTokenProvider {
         Date validity = shortValidity 
                             ? new Date(now.getTime() + shortValidityInMilliseconds) 
                             : new Date(now.getTime() + validityInMilliseconds);
+
+        Date refreshValidity = new Date(now.getTime() + refreshValidityInMilliseconds);
 
         if(shortValidity){
             String[] result = {
@@ -72,6 +76,7 @@ public class JwtTokenProvider {
                 Jwts.builder()
                     .setClaims(claims)
                     .setIssuedAt(now)
+                    .setExpiration(refreshValidity)
                     .signWith(getSignKey(), SignatureAlgorithm.HS256)
                     .compact()
             };
@@ -95,10 +100,26 @@ public class JwtTokenProvider {
             try{
                 Jws<Claims> claims = Jwts.parser().setSigningKey(getSignKey()).parseClaimsJws(token);
 
-                if(claims.getBody().getExpiration() != null){
-                    if(claims.getBody().getExpiration().before(new Date())){
-                        return false;
-                    }
+                if(claims.getBody().getExpiration().before(new Date())){
+                    return false;
+                }
+
+                return true;
+            } catch(JwtException | IllegalArgumentException e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+    
+    public boolean validateRefreshToken(String refresh) {
+        if(whiteTokenRepository.findByRefresh(refresh).isPresent()){
+            try{
+                Jws<Claims> claims = Jwts.parser().setSigningKey(getSignKey()).parseClaimsJws(refresh);
+
+                if(claims.getBody().getExpiration().before(new Date())){
+                    return false;
                 }
 
                 return true;

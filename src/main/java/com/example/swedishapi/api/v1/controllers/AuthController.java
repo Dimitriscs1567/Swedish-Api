@@ -66,11 +66,12 @@ public class AuthController{
                 response.put("message", "Request must contain an email and a password");
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-
+            
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-                
-            deleteOtherTokens(email);
+            
+            jwtTokenProvider.deleteOtherTokens(email);
             String[] tokens = jwtTokenProvider.createToken(email, this.userRepository.findByEmail(email).get().getRoles(), false);
+            
             whiteTokenRepository.save(new WhiteToken(tokens[0], tokens[1]));
 
             response.put("token", tokens[0]);
@@ -193,7 +194,7 @@ public class AuthController{
         Map<String, String> response = new HashMap<>();
 
         String refresh = data.get("refresh");
-        if(refresh == null || !jwtTokenProvider.validateToken(refresh)){
+        if(refresh == null || !jwtTokenProvider.validateRefreshToken(refresh)){
             response.put("message", "Invalid refresh token.");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
@@ -214,13 +215,5 @@ public class AuthController{
         response.put("refresh", tokens[1]);
         
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    private void deleteOtherTokens(String email){
-        for(var  token : whiteTokenRepository.findAll()){
-            if(jwtTokenProvider.getEmail(token.getToken()).equals(email)){
-                whiteTokenRepository.delete(token);
-            }
-        }
     }
 }
