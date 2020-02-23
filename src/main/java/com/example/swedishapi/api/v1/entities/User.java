@@ -127,15 +127,4 @@ public class User implements UserDetails {
         tests.add(test);
         test.setTestingUser(this);
     }
-
-    public Map<String, Object> toMap(){
-        Map<String, Object> result = new HashMap<>();
-
-        result.put("id", this.id);
-        result.put("email", this.email);
-        result.put("password", this.password);
-        result.put("roles", this.roles);
-
-        return result;
-    }
 }

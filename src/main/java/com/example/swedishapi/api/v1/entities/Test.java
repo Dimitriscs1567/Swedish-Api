@@ -1,7 +1,9 @@
 package com.example.swedishapi.api.v1.entities;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -73,5 +75,21 @@ public class Test{
 
     public void setTestingUser(User user) {
         this.testingUser = user;
+    }
+
+    public Map<String, Object> toMap(){
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("id", id);
+
+        List<Map<String, Object>> questionsMap = new ArrayList<>();
+        questions.forEach(question -> {
+            questionsMap.add(question.toMap());
+        });
+
+        result.put("questions", questionsMap);
+        result.put("result", result);
+
+        return result;
     }
 }

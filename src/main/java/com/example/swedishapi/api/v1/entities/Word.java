@@ -1,5 +1,8 @@
 package com.example.swedishapi.api.v1.entities;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -57,4 +60,15 @@ public class Word {
     public void setWord(String word) {
         this.word = word;
     }
+
+    public Map<String, Object> toMap(){
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("id", id);
+        result.put("word", word);
+        result.put("translation", translation);
+        result.put("notes", notes);
+
+        return result;
+    } 
 }
