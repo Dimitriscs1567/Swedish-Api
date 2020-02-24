@@ -45,7 +45,7 @@ public class WordController {
                     && !dataFormatter.formatCellValue(row.getCell(0)).isEmpty()){
 
                     if(wordRepository.findByWord(dataFormatter.formatCellValue(row.getCell(0))).isPresent()){
-                        duplicates.add(row.getRowNum());
+                        duplicates.add(row.getRowNum() + 1);
                     }
                     else{
                         Word word = new Word();
