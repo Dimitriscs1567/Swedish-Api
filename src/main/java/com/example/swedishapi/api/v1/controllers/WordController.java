@@ -28,12 +28,12 @@ public class WordController {
 
     @PostMapping("/fill_words")
     public ResponseEntity fillWords(@RequestParam("file") MultipartFile file, 
-        @RequestParam("clear") String clear){
+        @RequestParam("clear") boolean clear){
         try {
             XSSFWorkbook workbook = XSSFWorkbookFactory.createWorkbook(file.getInputStream());
             XSSFSheet sheet = workbook.cloneSheet(0);
 
-            if(clear.equals("true")){
+            if(clear){
                 wordRepository.deleteAll();
             }
             
